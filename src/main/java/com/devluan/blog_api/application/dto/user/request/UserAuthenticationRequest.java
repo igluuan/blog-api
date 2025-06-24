@@ -1,4 +1,4 @@
-package com.devluan.blog_api.application.dto.request;
+package com.devluan.blog_api.application.dto.user.request;
 
 public record UserAuthenticationRequest(
         String email,

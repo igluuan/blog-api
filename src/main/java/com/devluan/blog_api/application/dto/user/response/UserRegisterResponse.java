@@ -1,4 +1,4 @@
-package com.devluan.blog_api.application.dto.response;
+package com.devluan.blog_api.application.dto.user.response;
 
 import java.util.UUID;
 

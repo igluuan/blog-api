@@ -1,18 +1,18 @@
 package com.devluan.blog_api.infrastructure.api;
 
-import com.devluan.blog_api.application.dto.request.UserAuthenticationRequest;
-import com.devluan.blog_api.application.dto.request.UserRegisterRequest;
-import com.devluan.blog_api.application.dto.response.UserAuthenticationResponse;
-import com.devluan.blog_api.application.dto.response.UserRegisterResponse;
+import com.devluan.blog_api.application.dto.user.request.UserAuthenticationRequest;
+import com.devluan.blog_api.application.dto.user.request.UserRegisterRequest;
+import com.devluan.blog_api.application.dto.user.response.UserAuthenticationResponse;
+import com.devluan.blog_api.application.dto.user.response.UserRegisterResponse;
 import com.devluan.blog_api.domain.user.model.User;
-import com.devluan.blog_api.domain.user.repository.UserRepository;
 import com.devluan.blog_api.domain.user.service.UserAuthentication;
+import com.devluan.blog_api.domain.user.service.UserQuery;
 import com.devluan.blog_api.domain.user.service.UserRegister;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -21,18 +21,25 @@ import java.util.UUID;
 public class UserController {
     private final UserRegister userRegister;
     private final UserAuthentication userAuthentication;
-    private final UserRepository userRepository;
+    private final UserQuery userQuery;
 
     @PostMapping("/new")
-    public UserRegisterResponse create(@RequestBody @Valid UserRegisterRequest request){
-        return userRegister.createUser(request);
+    public ResponseEntity<UserRegisterResponse> create(@RequestBody @Valid UserRegisterRequest request) {
+        var response = userRegister.createUser(request);
+        return ResponseEntity.status(201).body(response);
     }
+
     @PostMapping("/login")
-    public UserAuthenticationResponse login(@RequestBody @Valid UserAuthenticationRequest request){
-        return userAuthentication.login(request);
+    public ResponseEntity<UserAuthenticationResponse> login(@RequestBody @Valid UserAuthenticationRequest request) {
+        var response = userAuthentication.login(request);
+        return ResponseEntity.ok(response);
     }
+
     @GetMapping("/{userId}")
-    public Optional<User> getById(@PathVariable UUID userId){
-        return userRepository.findById(userId);
+    public ResponseEntity<User> getById(@PathVariable UUID userId) {
+        var userResponse = userQuery.findById(userId);
+        return userResponse
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

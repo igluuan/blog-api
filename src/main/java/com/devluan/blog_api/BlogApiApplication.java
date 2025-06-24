@@ -1,6 +1,6 @@
 package com.devluan.blog_api;
 
-import com.devluan.blog_api.domain.user.service.logging.LoggerService;
+import com.devluan.blog_api.infrastructure.logger.LoggerService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +15,6 @@ public class BlogApiApplication {
 
 	@Bean
 	public CommandLineRunner testLogger(LoggerService logger) {
-		return args -> logger.info("Application started!");
+		return args -> logger.info("Application started!", null);
 	}
 }

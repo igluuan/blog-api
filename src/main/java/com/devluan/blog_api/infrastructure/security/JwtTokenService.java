@@ -20,7 +20,7 @@ public class JwtTokenService {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("blog-api")
-                .subject(user.getEmail())
+                .subject(user.getEmail().value())
                 .expiresAt(now.plusSeconds(expiresIn))
                 .build();
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
