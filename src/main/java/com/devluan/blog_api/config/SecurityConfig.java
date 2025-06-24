@@ -1,7 +1,7 @@
 package com.devluan.blog_api.config;
 
-import com.devluan.blog_api.domain.user.service.logging.LoggerService;
-import com.devluan.blog_api.domain.user.service.logging.SLF4JLoggerService;
+import com.devluan.blog_api.infrastructure.logger.LoggerService;
+import com.devluan.blog_api.infrastructure.logger.SLF4JLoggerService;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -74,17 +74,7 @@ public class SecurityConfig {
     }
     @Bean
     public LoggerService loggerService() {
-        return new SLF4JLoggerService() {
-            @Override
-            public void info(String message, String info) {
-
-            }
-
-            @Override
-            public void error(String message, String info, Throwable throwable) {
-
-            }
-        };
+        return new SLF4JLoggerService();
     }
 }
 
