@@ -51,10 +51,24 @@ public class User {
         this.email = newEmail;
     }
 
-    public void changePassword(String newPassword, BCryptPasswordEncoder passwordEncoder) {
+    public void changePassword(String newPassword) {
         if (newPassword == null || newPassword.length() < 8) {
             throw new IllegalArgumentException("Password must be at least 8 characters long and cannot be null");
         }
-        this.password = passwordEncoder.encode(newPassword);
+        this.password = newPassword;
+    }
+
+    public void updateUsername(String newUsername) {
+        if (newUsername == null || newUsername.isBlank()) {
+            throw new IllegalArgumentException("Username cannot be null or empty");
+        }
+        this.username = newUsername;
+    }
+
+    public void updateEmail(Email newEmail) {
+        if (newEmail == null) {
+            throw new IllegalArgumentException("Email cannot be null");
+        }
+        this.email = newEmail;
     }
 }
