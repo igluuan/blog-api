@@ -19,6 +19,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
     private final LoggerService logger;
+    private final UserRepository userRepository;
 
     public PostRegisterResponse createPost(PostRegisterRequest request){
         logger.info("Attempting to create a new post.");
@@ -26,28 +27,36 @@ public class PostService {
             logger.warn("Post creation request is null.");
             throw new IllegalArgumentException("Post cannot be null");
         }
+
+        User author = userRepository.findById(request.authorId())
+                .orElseThrow(() -> {
+                    logger.warn("User with ID: {} not found for post creation.", request.authorId());
+                    return new DomainException("User not found", "USER_NOT_FOUND");
+                });
+
         Post newPost = postMapper.toEntity(request);
+        newPost.setAuthor(author);
         postRepository.save(newPost);
-        logger.info("Post created successfully with ID: {}", newPost.getPostId());
+        logger.info("Post created successfully with ID: {}", newPost.getPostId().toString());
         return postMapper.toResponse(newPost);
     }
 
     public Optional<PostRegisterResponse> getPostById(UUID postId) {
-        logger.info("Attempting to retrieve post with ID: {}", postId);
+        logger.info("Attempting to retrieve post with ID: {}", postId.toString());
         Optional<Post> post = postRepository.findById(postId);
         if (post.isPresent()) {
-            logger.debug("Post with ID: {} found.", postId);
+            logger.debug("Post with ID: {} found.", postId.toString());
         } else {
-            logger.warn("Post with ID: {} not found.", postId);
+            logger.warn("Post with ID: {} not found.", postId.toString());
         }
         return post.map(postMapper::toResponse);
     }
 
     public PostRegisterResponse updatePost(UUID postId, PostRegisterRequest request) {
-        logger.info("Attempting to update post with ID: {}", postId);
+        logger.info("Attempting to update post with ID: {}", postId.toString());
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> {
-                    logger.warn("Post with ID: {} not found for update.", postId);
+                    logger.warn("Post with ID: {} not found for update.", postId.toString());
                     return new DomainException("Post not found", "POST_NOT_FOUND");
                 });
 
@@ -55,17 +64,17 @@ public class PostService {
         post.updateContent(request.content());
 
         Post updatedPost = postRepository.save(post);
-        logger.info("Post with ID: {} updated successfully.", postId);
+        logger.info("Post with ID: {} updated successfully.", postId.toString());
         return postMapper.toResponse(updatedPost);
     }
 
     public void deletePost(UUID postId) {
-        logger.info("Attempting to delete post with ID: {}", postId);
+        logger.info("Attempting to delete post with ID: {}", postId.toString());
         if (!postRepository.existsById(postId)) {
-            logger.warn("Post with ID: {} not found for deletion.", postId);
+            logger.warn("Post with ID: {} not found for deletion.", postId.toString());
             throw new DomainException("Post not found", "POST_NOT_FOUND");
         }
         postRepository.deleteById(postId);
-        logger.info("Post with ID: {} deleted successfully.", postId);
+        logger.info("Post with ID: {} deleted successfully.", postId.toString());
     }
 }

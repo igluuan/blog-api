@@ -50,4 +50,8 @@ public class Post {
         }
         this.content = newContent;
     }
+
+    public void setAuthor(User author) {
+        this.author = author;
+    }
 }
