@@ -262,7 +262,7 @@ class UserRegisterServiceTest {
                 // Arrange
                 when(request.email()).thenReturn(VALID_EMAIL);
                 when(request.password()).thenReturn(VALID_PASSWORD);
-                lenient().when(userRepository.existsByEmail(any(Email.class))).thenReturn(false);
+                
                 when(userMapper.toEntity(request)).thenThrow(new RuntimeException("Mapper error"));
 
                 // Act & Assert
