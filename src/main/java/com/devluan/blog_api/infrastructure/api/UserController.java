@@ -56,4 +56,10 @@ public class UserController {
         userRegister.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@RequestBody String email) {
+        userAuthentication.logout(email);
+        return ResponseEntity.ok().build();
+    }
 }

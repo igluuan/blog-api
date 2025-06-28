@@ -39,8 +39,15 @@ public class UserAuthentication {
     }
 
     private UserAuthenticationResponse generateAuthenticationResponse(User user) {
+        if (user.getToken() != null && jwtTokenService.isTokenValid(user.getToken())) {
+            logger.info("Reusing existing token for user: {}", user.getUsername());
+            return new UserAuthenticationResponse(user.getToken(), expiresIn);
+        }
+
         try {
             String token = jwtTokenService.generateToken(user, expiresIn);
+            user.assignToken(token, java.time.LocalDateTime.now().plusSeconds(expiresIn));
+            userRepository.save(user);
             logger.info("User logged in successfully: {}", user.getUsername());
             return new UserAuthenticationResponse(token, expiresIn);
         } catch (DomainException e) {
@@ -56,5 +63,14 @@ public class UserAuthentication {
         if (!request.email().matches("^[\\w-.]+@[\\w-]+\\.[a-zA-Z]{2,}$")) {
             throw new InvalidUserDataException("Invalid email format.", "INVALID_EMAIL_FORMAT");
         }
+    }
+
+    public void logout(String email) {
+        Email emailObj = new Email(email);
+        var user = userRepository.findByEmail(emailObj)
+                .orElseThrow(() -> new UserNotFoundException("User not found.", "USER_NOT_FOUND"));
+        user.clearToken();
+        userRepository.save(user);
+        logger.info("User logged out successfully: {}", email);
     }
 }

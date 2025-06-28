@@ -77,9 +77,8 @@ public class UserRegisterService {
 
     private User buildUser(UserRegisterRequest request) {
         logger.debug("Building user entity for email: {}", request.email());
-        User user = userMapper.toEntity(request);
         String encodedPassword = passwordEncoder.encode(request.password());
-        user.changePassword(encodedPassword);
+        User user = userMapper.toEntity(request, encodedPassword);
         return user;
     }
 

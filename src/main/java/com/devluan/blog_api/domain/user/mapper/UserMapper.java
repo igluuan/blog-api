@@ -23,15 +23,19 @@ public class UserMapper {
         );
     }
 
-    public User toEntity(UserRegisterRequest request) {
+    
+
+    public User toEntity(UserRegisterRequest request, String encodedPassword) {
         return new User(
-                null,
+                null, // userId
                 request.username(),
                 new Email(request.email()),
-                request.password(),
-                null,
-                null,
-                null
+                encodedPassword,
+                null, // token
+                null, // tokenExpiration
+                null, // createdAt
+                null, // posts
+                null  // comments
         );
     }
 

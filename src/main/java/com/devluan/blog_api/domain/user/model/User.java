@@ -34,6 +34,12 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(length = 500)
+    private String token;
+
+    @Column(name = "token_expiration")
+    private LocalDateTime tokenExpiration;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -70,5 +76,15 @@ public class User {
             throw new IllegalArgumentException("Email cannot be null");
         }
         this.email = newEmail;
+    }
+
+    public void assignToken(String token, LocalDateTime expiration) {
+        this.token = token;
+        this.tokenExpiration = expiration;
+    }
+
+    public void clearToken() {
+        this.token = null;
+        this.tokenExpiration = null;
     }
 }
