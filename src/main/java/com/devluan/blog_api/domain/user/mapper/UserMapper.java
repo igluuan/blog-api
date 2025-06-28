@@ -5,10 +5,15 @@ import com.devluan.blog_api.application.dto.user.response.UserRegisterResponse;
 import com.devluan.blog_api.application.dto.user.response.UserResponse;
 import com.devluan.blog_api.domain.user.model.User;
 import com.devluan.blog_api.domain.user.valueObject.Email;
+import com.devluan.blog_api.domain.post.mapper.PostMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class UserMapper {
+
+    private final PostMapper postMapper;
 
     public UserRegisterResponse toResponseDTO(User user) {
         return new UserRegisterResponse(
@@ -34,7 +39,8 @@ public class UserMapper {
         return new UserResponse(
                 user.getUserId(),
                 user.getUsername(),
-                user.getEmail() != null ? user.getEmail().getValue() : null
+                user.getEmail() != null ? user.getEmail().getValue() : null,
+                user.getPosts() != null ? user.getPosts().stream().map(postMapper::toPostResponseDTO).toList() : null
         );
     }
 }

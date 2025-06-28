@@ -2,6 +2,7 @@ package com.devluan.blog_api.domain.post.mapper;
 
 import com.devluan.blog_api.application.dto.post.request.PostRegisterRequest;
 import com.devluan.blog_api.application.dto.post.response.PostRegisterResponse;
+import com.devluan.blog_api.application.dto.post.response.PostResponseDTO;
 import com.devluan.blog_api.domain.post.model.Post;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
@@ -28,4 +29,16 @@ public class PostMapper {
         }
         return new PostRegisterResponse(post.getContent());
     }
-}
+
+    public PostResponseDTO toPostResponseDTO(Post post) {
+        if (post == null) {
+            return null;
+        }
+        return new PostResponseDTO(
+                post.getPostId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getImgUrl(),
+                post.getCreatedAt()
+        );
+    }
