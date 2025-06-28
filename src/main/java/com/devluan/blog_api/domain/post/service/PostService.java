@@ -6,6 +6,8 @@ import com.devluan.blog_api.domain.post.mapper.PostMapper;
 import com.devluan.blog_api.domain.post.model.Post;
 import com.devluan.blog_api.domain.post.repository.PostRepository;
 import com.devluan.blog_api.domain.exception.DomainException;
+import com.devluan.blog_api.domain.user.model.User;
+import com.devluan.blog_api.domain.user.repository.UserRepository;
 import com.devluan.blog_api.infrastructure.logger.LoggerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,7 @@ public class PostService {
 
         User author = userRepository.findById(request.authorId())
                 .orElseThrow(() -> {
-                    logger.warn("User with ID: {} not found for post creation.", request.authorId());
+                    logger.warn("User with ID: {} not found for post creation.", request.authorId().toString());
                     return new DomainException("User not found", "USER_NOT_FOUND");
                 });
 

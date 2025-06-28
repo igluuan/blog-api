@@ -21,6 +21,11 @@ public final class SLF4JLoggerService implements LoggerService {
     }
 
     @Override
+    public void warn(String message) {
+        logger.warn(message);
+    }
+
+    @Override
     public void warn(String message, String cause) {
         logger.warn("{} | Cause: {}", message, cause);
     }

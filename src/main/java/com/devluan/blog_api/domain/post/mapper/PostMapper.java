@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 
 @Component
 public class PostMapper {
-    public Post toEntity(PostRegisterRequest request){
-        if (request == null){
+    public Post toEntity(PostRegisterRequest request) {
+        if (request == null) {
             throw new IllegalArgumentException("Request cannot be null");
         }
         return new Post(null,
@@ -21,10 +21,11 @@ public class PostMapper {
                 request.content(),
                 null,
                 LocalDateTime.now(),
-                null );
+                null);
     }
-    public PostRegisterResponse toResponse(Post post){
-        if (post == null){
+
+    public PostRegisterResponse toResponse(Post post) {
+        if (post == null) {
             throw new IllegalArgumentException("Post cannot be null");
         }
         return new PostRegisterResponse(post.getContent());
@@ -42,3 +43,4 @@ public class PostMapper {
                 post.getCreatedAt()
         );
     }
+}

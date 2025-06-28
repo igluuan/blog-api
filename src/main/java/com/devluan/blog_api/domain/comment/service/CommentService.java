@@ -28,12 +28,12 @@ public class CommentService {
         logger.info("Attempting to create a new comment.");
         User author = userRepository.findById(request.authorId())
                 .orElseThrow(() -> {
-                    logger.warn("User with ID: {} not found for comment creation.", request.authorId());
+                    logger.warn("User with ID: {} not found for comment creation.", request.authorId().toString());
                     return new DomainException("User not found", "USER_NOT_FOUND");
                 });
         Post post = postRepository.findById(request.postId())
                 .orElseThrow(() -> {
-                    logger.warn("Post with ID: {} not found for comment creation.", request.postId());
+                    logger.warn("Post with ID: {} not found for comment creation.", request.authorId().toString());
                     return new DomainException("Post not found", "POST_NOT_FOUND");
                 });
 
@@ -43,33 +43,33 @@ public class CommentService {
         comment.setPost(post);
 
         Comment savedComment = commentRepository.save(comment);
-        logger.info("Comment created successfully with ID: {}", savedComment.getCommentId());
+        logger.info("Comment created successfully with ID: {}", savedComment.getCommentId().toString());
         return toResponse(savedComment);
     }
 
     public CommentRegisterResponse updateComment(UUID commentId, CommentRegisterRequest request) {
-        logger.info("Attempting to update comment with ID: {}", commentId);
+        logger.info("Attempting to update comment with ID: {}", commentId.toString());
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> {
-                    logger.warn("Comment with ID: {} not found for update.", commentId);
+                    logger.warn("Comment with ID: {} not found for update.", commentId.toString());
                     return new DomainException("Comment not found", "COMMENT_NOT_FOUND");
                 });
 
         comment.setContent(request.content());
 
         Comment updatedComment = commentRepository.save(comment);
-        logger.info("Comment with ID: {} updated successfully.", commentId);
+        logger.info("Comment with ID: {} updated successfully.", commentId.toString());
         return toResponse(updatedComment);
     }
 
     public void deleteComment(UUID commentId) {
-        logger.info("Attempting to delete comment with ID: {}", commentId);
+        logger.info("Attempting to delete comment with ID: {}", commentId.toString());
         if (!commentRepository.existsById(commentId)) {
-            logger.warn("Comment with ID: {} not found for deletion.", commentId);
+            logger.warn("Comment with ID: {} not found for deletion.", commentId.toString());
             throw new DomainException("Comment not found", "COMMENT_NOT_FOUND");
         }
         commentRepository.deleteById(commentId);
-        logger.info("Comment with ID: {} deleted successfully.", commentId);
+        logger.info("Comment with ID: {} deleted successfully.", commentId.toString());
     }
 
     private CommentRegisterResponse toResponse(Comment comment) {
