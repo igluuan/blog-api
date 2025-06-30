@@ -1,6 +1,6 @@
 package com.devluan.blog_api.domain.user.valueObject;
 
-import com.devluan.blog_api.domain.exception.InvalidUserDataException;
+import com.devluan.blog_api.domain.user.exception.InvalidUserDataException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
