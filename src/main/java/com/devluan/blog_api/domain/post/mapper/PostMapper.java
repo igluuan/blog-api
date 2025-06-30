@@ -16,6 +16,7 @@ public class PostMapper {
         }
         return new Post(null,
                 null,
+                request.title(),
                 request.content(),
                 null,
                 LocalDateTime.now(),
