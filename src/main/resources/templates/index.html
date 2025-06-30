@@ -33,17 +33,12 @@
     </nav>
 
     <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="mb-0">Posts</h1>
-            <div sec:authorize="isAuthenticated()">
-                <a th:href="@{/posts/new}" class="btn btn-primary">Create New Post</a>
-            </div>
-        </div>
+        <h1 class="mb-4">Posts</h1>
         <div th:each="post : ${posts}" class="card mb-3">
             <div class="card-body">
                 <h2 class="card-title" th:text="${post.title}"></h2>
                 <p class="card-text" th:text="${post.content}"></p>
-                <p class="card-text"><small class="text-muted">Author: <span th:text="${post.authorUsername}"></span> | Created at: <span th:text="${post.createdAt}"></span></small></p>
+                <p class="card-text"><small class="text-muted">Created at: <span th:text="${post.createdAt}"></span></small></p>
             </div>
         </div>
     </div>
