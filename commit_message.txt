@@ -1,1 +1,7 @@
-feat: Implementação inicial do frontend com Thymeleaf e listagem de posts.
+feat: Implementa reutilização de token e logout
+
+- Ajusta JwtTokenService para validar e reutilizar tokens JWT.
+- Modifica UserAuthentication para verificar e reutilizar tokens existentes ou gerar novos.
+- Adiciona funcionalidade de logout, invalidando o token do usuário.
+- Refatora a entidade User para eliminar setters diretos de token, usando métodos de domínio (assignToken, clearToken).
+- Adapta UserMapper e UserRegisterService para as novas abordagens de criação e manipulação de User.

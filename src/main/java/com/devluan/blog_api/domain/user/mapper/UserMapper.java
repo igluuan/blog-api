@@ -27,18 +27,15 @@ public class UserMapper {
 
     public User toEntity(UserRegisterRequest request, String encodedPassword) {
         return new User(
-                (java.time.LocalDateTime) null, // createdAt
-                (java.time.LocalDateTime) null, // updatedAt
-                (java.util.UUID) null, // userId
+                null, // userId
                 request.username(),
                 new Email(request.email()),
                 encodedPassword,
-                (String) null, // refreshToken
-                (java.time.LocalDateTime) null, // refreshTokenExpiration
-                (String) null, // accessToken
-                (java.time.LocalDateTime) null, // accessTokenExpiration
-                (java.util.List) null, // posts
-                (java.util.List) null  // comments
+                null, // token
+                null, // tokenExpiration
+                null, // createdAt
+                null, // posts
+                null  // comments
         );
     }
 

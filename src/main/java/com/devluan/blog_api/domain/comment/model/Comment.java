@@ -3,10 +3,10 @@ package com.devluan.blog_api.domain.comment.model;
 import com.devluan.blog_api.domain.post.model.Post;
 import com.devluan.blog_api.domain.user.model.User;
 import jakarta.persistence.*;
-import com.devluan.blog_api.domain.auditable.Auditable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class Comment extends Auditable {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID commentId;
@@ -31,7 +31,9 @@ public class Comment extends Auditable {
 
     private String content;
 
-    
+    @CreationTimestamp
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     public void setContent(String content) {
         this.content = content;

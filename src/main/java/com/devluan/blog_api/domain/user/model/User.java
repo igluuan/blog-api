@@ -4,9 +4,11 @@ import com.devluan.blog_api.domain.comment.model.Comment;
 import com.devluan.blog_api.domain.post.model.Post;
 import com.devluan.blog_api.domain.user.valueObject.Email;
 import jakarta.persistence.*;
-import com.devluan.blog_api.domain.auditable.Auditable;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,23 +16,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users")
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class User extends Auditable {
-
-    public User(LocalDateTime createdAt, LocalDateTime updatedAt, UUID userId, String username, Email email, String password, String refreshToken, LocalDateTime refreshTokenExpiration, String accessToken, LocalDateTime accessTokenExpiration, List<Post> posts, List<Comment> comments) {
-        this.userId = userId;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.refreshToken = refreshToken;
-        this.refreshTokenExpiration = refreshTokenExpiration;
-        this.accessToken = accessToken;
-        this.accessTokenExpiration = accessTokenExpiration;
-        this.posts = posts;
-        this.comments = comments;
-    }
-
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID userId;
@@ -45,17 +34,15 @@ public class User extends Auditable {
     @Column(nullable = false)
     private String password;
 
-    @Column(columnDefinition = "TEXT")
-    private String refreshToken;
+    @Column(length = 500)
+    private String token;
 
-    @Column(name = "refresh_token_expiration")
-    private LocalDateTime refreshTokenExpiration;
+    @Column(name = "token_expiration")
+    private LocalDateTime tokenExpiration;
 
-    @Column(columnDefinition = "TEXT")
-    private String accessToken;
-
-    @Column(name = "access_token_expiration")
-    private LocalDateTime accessTokenExpiration;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "author")
     private List<Post> posts;
@@ -91,23 +78,13 @@ public class User extends Auditable {
         this.email = newEmail;
     }
 
-    public void assignRefreshToken(String refreshToken, LocalDateTime expiration) {
-        this.refreshToken = refreshToken;
-        this.refreshTokenExpiration = expiration;
+    public void assignToken(String token, LocalDateTime expiration) {
+        this.token = token;
+        this.tokenExpiration = expiration;
     }
 
-    public void clearRefreshToken() {
-        this.refreshToken = null;
-        this.refreshTokenExpiration = null;
-    }
-
-    public void assignAccessToken(String accessToken, LocalDateTime expiration) {
-        this.accessToken = accessToken;
-        this.accessTokenExpiration = expiration;
-    }
-
-    public void clearAccessToken() {
-        this.accessToken = null;
-        this.accessTokenExpiration = null;
+    public void clearToken() {
+        this.token = null;
+        this.tokenExpiration = null;
     }
 }
