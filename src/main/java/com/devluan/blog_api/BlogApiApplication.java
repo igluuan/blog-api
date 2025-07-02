@@ -15,6 +15,6 @@ public class BlogApiApplication {
 
 	@Bean
 	public CommandLineRunner testLogger(LoggerService logger) {
-		return args -> logger.info("Application started!", null);
+		return args -> logger.info("Application started!");
 	}
 }

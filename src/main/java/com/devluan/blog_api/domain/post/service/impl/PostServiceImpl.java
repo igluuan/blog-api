@@ -1,23 +1,32 @@
-package com.devluan.blog_api.domain.post.service;
+package com.devluan.blog_api.domain.post.service.impl;
 
 import com.devluan.blog_api.application.dto.post.request.PostRegisterRequest;
 import com.devluan.blog_api.application.dto.post.response.PostRegisterResponse;
+import com.devluan.blog_api.application.service.post.PostApplicationService;
+import com.devluan.blog_api.application.dto.post.response.PostResponseDTO;
 import com.devluan.blog_api.domain.post.mapper.PostMapper;
 import com.devluan.blog_api.domain.post.model.Post;
 import com.devluan.blog_api.domain.post.repository.PostRepository;
 import com.devluan.blog_api.domain.exception.DomainException;
+import com.devluan.blog_api.domain.exception.UserNotFoundException;
+import com.devluan.blog_api.domain.exception.PostNotFoundException;
+import com.devluan.blog_api.domain.exception.InvalidPostDataException;
 import com.devluan.blog_api.domain.user.model.User;
 import com.devluan.blog_api.domain.user.repository.UserRepository;
 import com.devluan.blog_api.infrastructure.logger.LoggerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PostService {
+public class PostServiceImpl implements PostApplicationService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
     private final LoggerService logger;
@@ -27,13 +36,13 @@ public class PostService {
         logger.info("Attempting to create a new post.");
         if (request == null){
             logger.warn("Post creation request is null.");
-            throw new IllegalArgumentException("Post cannot be null");
+            throw new InvalidPostDataException("Post cannot be null", "INVALID_POST_DATA");
         }
 
         User author = userRepository.findById(request.authorId())
                 .orElseThrow(() -> {
                     logger.warn("User with ID: {} not found for post creation.", request.authorId().toString());
-                    return new DomainException("User not found", "USER_NOT_FOUND");
+                    return new UserNotFoundException("User not found", "USER_NOT_FOUND");
                 });
 
         Post newPost = postMapper.toEntity(request);
@@ -59,7 +68,7 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> {
                     logger.warn("Post with ID: {} not found for update.", postId.toString());
-                    return new DomainException("Post not found", "POST_NOT_FOUND");
+                    return new PostNotFoundException("Post not found", "POST_NOT_FOUND");
                 });
 
         post.updateTitle(request.title());
@@ -74,9 +83,23 @@ public class PostService {
         logger.info("Attempting to delete post with ID: {}", postId.toString());
         if (!postRepository.existsById(postId)) {
             logger.warn("Post with ID: {} not found for deletion.", postId.toString());
-            throw new DomainException("Post not found", "POST_NOT_FOUND");
+            throw new PostNotFoundException("Post not found", "POST_NOT_FOUND");
         }
         postRepository.deleteById(postId);
         logger.info("Post with ID: {} deleted successfully.", postId.toString());
+    }
+
+    public Page<PostRegisterResponse> getAllPosts(Pageable pageable) {
+        logger.info(String.format("Fetching all posts with pagination: page %d, size %d, sort %s.",
+                pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort()));
+        Page<Post> postsPage = postRepository.findAll(pageable);
+        return postsPage.map(postMapper::toResponse);
+    }
+
+    @Override
+    public List<PostResponseDTO> getAllPosts() {
+        return postRepository.findAll().stream()
+                .map(postMapper::toPostResponseDTO)
+                .collect(Collectors.toList());
     }
 }

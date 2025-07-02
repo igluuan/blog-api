@@ -1,0 +1,1 @@
+feat: Adiciona funcionalidade de criação de posts.

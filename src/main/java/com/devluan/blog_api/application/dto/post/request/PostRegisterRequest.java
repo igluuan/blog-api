@@ -1,6 +1,6 @@
 package com.devluan.blog_api.application.dto.post.request;
 
-public record PostRegisterRequest(
-        String content
-) {
+import java.util.UUID;
+
+public record PostRegisterRequest(String title, String content, String imgUrl, UUID authorId) {
 }
