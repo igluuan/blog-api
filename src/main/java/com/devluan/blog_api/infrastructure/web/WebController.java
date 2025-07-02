@@ -52,19 +52,10 @@ public class WebController {
         return "new-post";
     }
 
-    @PostMapping("/posts")
-    public String createPost(PostRegisterRequest request) {
+    @GetMapping("/myaccount")
+    public String myAccount(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        UUID authorId = userApplicationService.findUserByUsername(username).orElseThrow().getUserId();
-
-        PostRegisterRequest postRequestWithAuthor = new PostRegisterRequest(
-                request.title(),
-                request.content(),
-                request.imgUrl(),
-                authorId
-        );
-        postApplicationService.createPost(postRequestWithAuthor);
-        return "redirect:/";
+        userApplicationService.findUserByUsername(username).ifPresent(user -> model.addAttribute("user", user));
+        return "myaccount";
     }
-}

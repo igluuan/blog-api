@@ -17,8 +17,8 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping("/new")
-    public ResponseEntity<PostRegisterResponse> create(@RequestBody @Valid PostRegisterRequest request) {
+    @PostMapping(value = "/new", consumes = {"multipart/form-data"})
+    public ResponseEntity<PostRegisterResponse> create(@ModelAttribute @Valid PostRegisterRequest request) {
         var response = postService.createPost(request);
         return ResponseEntity.status(201).body(response);
     }

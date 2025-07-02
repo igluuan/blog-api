@@ -65,4 +65,8 @@ public class Post {
     public void setAuthor(User author) {
         this.author = author;
     }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
 }

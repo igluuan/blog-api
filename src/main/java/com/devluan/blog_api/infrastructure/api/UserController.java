@@ -9,11 +9,14 @@ import com.devluan.blog_api.domain.user.mapper.UserMapper;
 import com.devluan.blog_api.domain.user.service.UserAuthentication;
 import com.devluan.blog_api.domain.user.service.UserQuery;
 import com.devluan.blog_api.domain.user.service.UserRegisterService;
+import com.devluan.blog_api.application.service.user.UserApplicationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @RestController
@@ -24,6 +27,7 @@ public class UserController {
     private final UserAuthentication userAuthentication;
     private final UserQuery userQuery;
     private final UserMapper userMapper;
+    private final UserApplicationService userApplicationService;
 
     @PostMapping("/new")
     public ResponseEntity<UserRegisterResponse> create(@RequestBody @Valid UserRegisterRequest request) {
@@ -60,6 +64,12 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestBody String email) {
         userAuthentication.logout(email);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/{userId}/profile-image", consumes = {"multipart/form-data"})
+    public ResponseEntity<Void> uploadProfileImage(@PathVariable UUID userId, @RequestParam("file") MultipartFile file) throws IOException {
+        userApplicationService.uploadProfileImage(userId, file);
         return ResponseEntity.ok().build();
     }
 }

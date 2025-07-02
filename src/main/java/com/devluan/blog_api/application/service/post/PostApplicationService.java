@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface PostApplicationService {
-    PostRegisterResponse createPost(PostRegisterRequest request);
+    PostRegisterResponse createPost(PostRegisterRequest request) throws java.io.IOException;
     Optional<PostRegisterResponse> getPostById(UUID postId);
     PostRegisterResponse updatePost(UUID postId, PostRegisterRequest request);
     void deletePost(UUID postId);

@@ -18,13 +18,16 @@ import com.devluan.blog_api.domain.user.valueObject.Email;
 import com.devluan.blog_api.infrastructure.logger.LoggerService;
 import com.devluan.blog_api.infrastructure.security.JwtTokenService;
 import com.devluan.blog_api.infrastructure.security.TokenBlacklistService;
+import com.devluan.blog_api.infrastructure.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,6 +42,7 @@ public class UserRegisterServiceImpl implements UserApplicationService {
     private final LoggerService logger;
     private final JwtTokenService jwtTokenService;
     private final TokenBlacklistService tokenBlacklistService;
+    private final FileStorageService fileStorageService;
 
     
     
@@ -255,4 +259,17 @@ public class UserRegisterServiceImpl implements UserApplicationService {
     public Optional<User> findUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+
+    @Override
+    @Transactional
+    public void uploadProfileImage(UUID userId, MultipartFile file) throws IOException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found", "USER_NOT_FOUND"));
+
+        String imageUrl = fileStorageService.storeFile(file);
+        user.setProfileImageUrl(imageUrl);
+        userRepository.save(user);
+        logger.info("Profile image uploaded successfully for user: {}", userId);
+    }
+
 }

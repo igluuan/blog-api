@@ -14,11 +14,13 @@ import com.devluan.blog_api.domain.exception.InvalidPostDataException;
 import com.devluan.blog_api.domain.user.model.User;
 import com.devluan.blog_api.domain.user.repository.UserRepository;
 import com.devluan.blog_api.infrastructure.logger.LoggerService;
+import com.devluan.blog_api.infrastructure.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,8 +33,9 @@ public class PostServiceImpl implements PostApplicationService {
     private final PostMapper postMapper;
     private final LoggerService logger;
     private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
 
-    public PostRegisterResponse createPost(PostRegisterRequest request){
+    public PostRegisterResponse createPost(PostRegisterRequest request) throws IOException {
         logger.info("Attempting to create a new post.");
         if (request == null){
             logger.warn("Post creation request is null.");
@@ -47,6 +50,12 @@ public class PostServiceImpl implements PostApplicationService {
 
         Post newPost = postMapper.toEntity(request);
         newPost.setAuthor(author);
+
+        if (request.image() != null && !request.image().isEmpty()) {
+            String imageUrl = fileStorageService.storeFile(request.image());
+            newPost.setImgUrl(imageUrl);
+        }
+
         postRepository.save(newPost);
         logger.info("Post created successfully with ID: {}", newPost.getPostId().toString());
         return postMapper.toResponse(newPost);

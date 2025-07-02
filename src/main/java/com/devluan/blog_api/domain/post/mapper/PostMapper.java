@@ -52,7 +52,8 @@ public class PostMapper {
                 post.getImgUrl(),
                 post.getCreatedAt() != null ? post.getCreatedAt().format(FORMATTER) : null,
                 post.getUpdatedAt() != null ? post.getUpdatedAt().format(FORMATTER) : null,
-                post.getAuthor() != null ? post.getAuthor().getUsername() : null
+                post.getAuthor() != null ? post.getAuthor().getUsername() : null,
+                post.getAuthor() != null ? post.getAuthor().getProfileImageUrl() : null
         );
     }
 }

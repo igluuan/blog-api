@@ -46,6 +46,8 @@ public class User {
     @Column(name = "refresh_token_expiration")
     private LocalDateTime refreshTokenExpiration;
 
+    private String profileImageUrl;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

@@ -15,6 +15,7 @@ public interface UserApplicationService {
     UserAuthenticationResponse login(UserAuthenticationRequest request);
     UserAuthenticationResponse refreshAccessToken(String refreshToken);
     void logout(String request);
+    void uploadProfileImage(UUID userId, org.springframework.web.multipart.MultipartFile file) throws java.io.IOException;
     Optional<User> findUserById(UUID userId);
     User updateUser(UUID userId, UserRegisterRequest request);
     void deleteUser(UUID userId);
