@@ -18,12 +18,12 @@ public class PostMapper {
             throw new IllegalArgumentException("Request cannot be null");
         }
         return new Post(
-                (java.util.UUID) null, // postId
-                (com.devluan.blog_api.domain.user.model.User) null, // author (will be set later in service)
+                null, // postId
+                null, // author (will be set later in service)
                 request.title(),
                 request.content(),
                 request.imgUrl(),
-                (java.util.List) null  // comments
+                null  // comments
         );
     }
 
@@ -31,7 +31,14 @@ public class PostMapper {
         if (post == null) {
             throw new IllegalArgumentException("Post cannot be null");
         }
-        return new PostRegisterResponse(post.getContent());
+        return new PostRegisterResponse(
+                post.getPostId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getImgUrl(),
+                post.getCreatedAt(),
+                post.getAuthor() != null ? post.getAuthor().getUserId() : null
+        );
     }
 
     public PostResponseDTO toPostResponseDTO(Post post) {

@@ -7,10 +7,10 @@ import com.devluan.blog_api.application.dto.user.response.UserAuthenticationResp
 import com.devluan.blog_api.application.dto.user.response.UserRegisterResponse;
 import com.devluan.blog_api.application.service.user.UserApplicationService;
 import com.devluan.blog_api.domain.exception.DomainException;
-import com.devluan.blog_api.domain.user.exception.InvalidCredentialsException;
-import com.devluan.blog_api.domain.user.exception.InvalidUserDataException;
-import com.devluan.blog_api.domain.user.exception.UserAlreadyExistsException;
-import com.devluan.blog_api.domain.user.exception.UserNotFoundException;
+import com.devluan.blog_api.domain.exception.InvalidCredentialsException;
+import com.devluan.blog_api.domain.exception.InvalidUserDataException;
+import com.devluan.blog_api.domain.exception.UserAlreadyExistsException;
+import com.devluan.blog_api.domain.exception.UserNotFoundException;
 import com.devluan.blog_api.domain.user.mapper.UserMapper;
 import com.devluan.blog_api.domain.user.model.User;
 import com.devluan.blog_api.domain.user.repository.UserRepository;

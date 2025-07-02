@@ -31,8 +31,10 @@ public class UserMapper {
                 request.username(),
                 new Email(request.email()),
                 encodedPassword,
-                null, // token
-                null, // tokenExpiration
+                null, // accessToken
+                null, // accessTokenExpiration
+                null, // refreshToken
+                null, // refreshTokenExpiration
                 null, // createdAt
                 null, // posts
                 null  // comments

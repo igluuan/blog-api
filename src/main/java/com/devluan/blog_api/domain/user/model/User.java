@@ -34,11 +34,17 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(length = 500)
-    private String token;
+    @Column(name = "access_token", length = 500)
+    private String accessToken;
 
-    @Column(name = "token_expiration")
-    private LocalDateTime tokenExpiration;
+    @Column(name = "access_token_expiration")
+    private LocalDateTime accessTokenExpiration;
+
+    @Column(name = "refresh_token", length = 500)
+    private String refreshToken;
+
+    @Column(name = "refresh_token_expiration")
+    private LocalDateTime refreshTokenExpiration;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -78,13 +84,23 @@ public class User {
         this.email = newEmail;
     }
 
-    public void assignToken(String token, LocalDateTime expiration) {
-        this.token = token;
-        this.tokenExpiration = expiration;
+    public void assignAccessToken(String accessToken, LocalDateTime expiration) {
+        this.accessToken = accessToken;
+        this.accessTokenExpiration = expiration;
     }
 
-    public void clearToken() {
-        this.token = null;
-        this.tokenExpiration = null;
+    public void clearAccessToken() {
+        this.accessToken = null;
+        this.accessTokenExpiration = null;
+    }
+
+    public void assignRefreshToken(String refreshToken, LocalDateTime expiration) {
+        this.refreshToken = refreshToken;
+        this.refreshTokenExpiration = expiration;
+    }
+
+    public void clearRefreshToken() {
+        this.refreshToken = null;
+        this.refreshTokenExpiration = null;
     }
 }

@@ -1,5 +1,6 @@
 package com.devluan.blog_api.domain.user.service;
 
+import com.devluan.blog_api.application.dto.token.TokenPair;
 import com.devluan.blog_api.application.dto.user.request.UserAuthenticationRequest;
 import com.devluan.blog_api.application.dto.user.response.UserAuthenticationResponse;
 import com.devluan.blog_api.domain.exception.DomainException;
@@ -11,6 +12,7 @@ import com.devluan.blog_api.domain.user.repository.UserRepository;
 import com.devluan.blog_api.domain.user.valueObject.Email;
 import com.devluan.blog_api.infrastructure.logger.LoggerService;
 import com.devluan.blog_api.infrastructure.security.JwtTokenService;
+import com.devluan.blog_api.infrastructure.security.TokenBlacklistService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,6 +24,7 @@ public class UserAuthentication {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtTokenService jwtTokenService;
+    private final TokenBlacklistService tokenBlacklistService;
     private final LoggerService logger;
     @Value("${jwt.token.expiration}")
     private long expiresIn;
@@ -39,17 +42,21 @@ public class UserAuthentication {
     }
 
     private UserAuthenticationResponse generateAuthenticationResponse(User user) {
-        if (user.getToken() != null && jwtTokenService.isTokenValid(user.getToken())) {
-            logger.info("Reusing existing token for user: {}", user.getUsername());
-            return new UserAuthenticationResponse(user.getToken(), expiresIn);
+        if (user.getRefreshToken() != null && jwtTokenService.isTokenValid(user.getRefreshToken())) {
+            logger.info("Reusing existing refresh token for user: {}", user.getUsername());
+            String newAccessToken = jwtTokenService.generateAccessTokenFromRefreshToken(user.getRefreshToken());
+            user.assignAccessToken(newAccessToken, java.time.LocalDateTime.now().plusSeconds(jwtTokenService.getAccessTokenExpiresIn()));
+            userRepository.save(user);
+            return new UserAuthenticationResponse(newAccessToken, user.getRefreshToken(), jwtTokenService.getAccessTokenExpiresIn());
         }
 
         try {
-            String token = jwtTokenService.generateToken(user, expiresIn);
-            user.assignToken(token, java.time.LocalDateTime.now().plusSeconds(expiresIn));
+            TokenPair tokenPair = jwtTokenService.generateTokens(user);
+            user.assignRefreshToken(tokenPair.refreshToken(), java.time.LocalDateTime.now().plusSeconds(jwtTokenService.getRefreshTokenExpiresIn()));
+            user.assignAccessToken(tokenPair.accessToken(), java.time.LocalDateTime.now().plusSeconds(jwtTokenService.getAccessTokenExpiresIn()));
             userRepository.save(user);
             logger.info("User logged in successfully: {}", user.getUsername());
-            return new UserAuthenticationResponse(token, expiresIn);
+            return new UserAuthenticationResponse(tokenPair.accessToken(), tokenPair.refreshToken(), tokenPair.expiresIn());
         } catch (DomainException e) {
             logger.error("Authentication error for user {}: {}", user.getEmail().value());
             throw new InvalidCredentialsException("Unexpected error during authentication.", "AUTHENTICATION_ERROR");
@@ -69,7 +76,14 @@ public class UserAuthentication {
         Email emailObj = new Email(email);
         var user = userRepository.findByEmail(emailObj)
                 .orElseThrow(() -> new UserNotFoundException("User not found.", "USER_NOT_FOUND"));
-        user.clearToken();
+        if (user.getRefreshToken() != null) {
+            tokenBlacklistService.blacklistToken(user.getRefreshToken());
+        }
+        if (user.getAccessToken() != null) {
+            tokenBlacklistService.blacklistToken(user.getAccessToken());
+        }
+        user.clearRefreshToken();
+        user.clearAccessToken();
         userRepository.save(user);
         logger.info("User logged out successfully: {}", email);
     }
