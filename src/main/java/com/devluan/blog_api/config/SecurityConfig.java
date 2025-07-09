@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,24 +42,23 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http, BlacklistingJwtAuthenticationProvider blacklistingJwtAuthenticationProvider) throws Exception {
-        http
+        return http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/new", "/api/users/login", "/api/users/refresh-token", "/api/users/logout").permitAll()
                         .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
-                .authenticationProvider(blacklistingJwtAuthenticationProvider);
-
-        return http.build();
+                .authenticationProvider(blacklistingJwtAuthenticationProvider)
+                .build();
     }
 
     @Bean
     @Order(2)
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http, DaoAuthenticationProvider daoAuthenticationProvider) throws Exception {
-        http
+        return http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login", "/register", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
@@ -74,10 +74,9 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .authenticationProvider(daoAuthenticationProvider)
-                .csrf(csrf -> csrf.disable())
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
-
-        return http.build();
+                .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+                .build();
     }
 
     @Bean

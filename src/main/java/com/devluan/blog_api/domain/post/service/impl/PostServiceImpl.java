@@ -4,13 +4,11 @@ import com.devluan.blog_api.application.dto.post.request.PostRegisterRequest;
 import com.devluan.blog_api.application.dto.post.response.PostRegisterResponse;
 import com.devluan.blog_api.application.service.post.PostApplicationService;
 import com.devluan.blog_api.application.dto.post.response.PostResponseDTO;
+import com.devluan.blog_api.domain.exception.*;
 import com.devluan.blog_api.domain.post.mapper.PostMapper;
 import com.devluan.blog_api.domain.post.model.Post;
 import com.devluan.blog_api.domain.post.repository.PostRepository;
-import com.devluan.blog_api.domain.exception.DomainException;
-import com.devluan.blog_api.domain.exception.UserNotFoundException;
-import com.devluan.blog_api.domain.exception.PostNotFoundException;
-import com.devluan.blog_api.domain.exception.InvalidPostDataException;
+import com.devluan.blog_api.domain.comment.repository.CommentRepository;
 import com.devluan.blog_api.domain.user.model.User;
 import com.devluan.blog_api.domain.user.repository.UserRepository;
 import com.devluan.blog_api.infrastructure.logger.LoggerService;
@@ -31,6 +29,7 @@ public class PostServiceImpl implements PostApplicationService {
     private final PostMapper postMapper;
     private final LoggerService logger;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
 
     public PostRegisterResponse createPost(PostRegisterRequest request){
         logger.info("Attempting to create a new post.");
@@ -64,7 +63,6 @@ public class PostServiceImpl implements PostApplicationService {
     }
 
     public PostRegisterResponse updatePost(UUID postId, PostRegisterRequest request) {
-        logger.info("Attempting to update post with ID: {}", postId.toString());
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> {
                     logger.warn("Post with ID: {} not found for update.", postId.toString());
@@ -79,19 +77,30 @@ public class PostServiceImpl implements PostApplicationService {
         return postMapper.toResponse(updatedPost);
     }
 
-    public void deletePost(UUID postId) {
-        logger.info("Attempting to delete post with ID: {}", postId.toString());
-        if (!postRepository.existsById(postId)) {
-            logger.warn("Post with ID: {} not found for deletion.", postId.toString());
-            throw new PostNotFoundException("Post not found", "POST_NOT_FOUND");
+    public void deletePost(UUID postId, String userEmail) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> {
+                    logger.warn("Post with ID: {} not found for deletion.", postId.toString());
+                    return new PostNotFoundException("Post not found", "POST_NOT_FOUND");
+                });
+
+        if (!post.getAuthor().getEmail().value().equals(userEmail)) {
+            logger.warn("User with email: {} is not authorized to delete post with ID: {}", userEmail, postId.toString());
+            throw new UnauthorizedException("User not authorized to delete this post", "USER_NOT_AUTHORIZED");
         }
+
+        commentRepository.deleteByPost_PostId(postId);
         postRepository.deleteById(postId);
         logger.info("Post with ID: {} deleted successfully.", postId.toString());
     }
 
     public Page<PostRegisterResponse> getAllPosts(Pageable pageable) {
-        logger.info(String.format("Fetching all posts with pagination: page %d, size %d, sort %s.",
-                pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort()));
+        if (pageable.isPaged()) {
+            logger.info("Fetching all posts with pagination: page {}, size {}, sort {}.",
+                    pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort());
+        } else {
+            logger.info("Fetching all posts without pagination.");
+        }
         Page<Post> postsPage = postRepository.findAll(pageable);
         return postsPage.map(postMapper::toResponse);
     }
